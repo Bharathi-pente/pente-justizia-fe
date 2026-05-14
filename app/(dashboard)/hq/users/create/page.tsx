@@ -184,7 +184,15 @@ export default function CreateHQUserPage() {
                   <option value="hq_admin">HQ Admin (Full Access)</option>
                   <option value="hq_compliance">HQ Compliance (Compliance & Audit)</option>
                   <option value="hq_bdm">HQ BDM (Business Development)</option>
+                  <option value="cell_admin">Cell Admin (Cell Manager)</option>
+                  <option value="cell_solicitor">Cell Solicitor (Legal Professional)</option>
+                  <option value="cell_paralegal">Cell Paralegal (Legal Assistant)</option>
+                  <option value="funder">Funder (Funding Organization)</option>
+                  <option value="insurer">Insurer (Insurance Provider)</option>
                 </select>
+                <p className="text-xs text-muted-foreground">
+                  Select the appropriate role for the new user. All role types can be created by HQ admins.
+                </p>
               </div>
 
               <div className="space-y-2">
