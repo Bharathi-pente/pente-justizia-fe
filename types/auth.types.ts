@@ -9,6 +9,25 @@ export enum UserRole {
   INSURER = 'insurer',
 }
 
+export enum ConsentStatus {
+  PENDING = 'PENDING',
+  GRANTED = 'GRANTED',
+  DENIED = 'DENIED',
+}
+
+export enum OnboardingStatus {
+  NOT_STARTED = 'NOT_STARTED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum ClientType {
+  INDIVIDUAL = 'INDIVIDUAL',
+  CORPORATE = 'CORPORATE',
+  GOVERNMENT = 'GOVERNMENT',
+  NON_PROFIT = 'NON_PROFIT',
+}
+
 export interface AuthUser {
   id: string;           // keycloak sub
   email: string;

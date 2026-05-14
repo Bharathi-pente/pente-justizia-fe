@@ -86,9 +86,14 @@ export default function LoginPage() {
       }
 
       const data = await response.json();
+      console.log('Token response received:', { 
+        hasAccessToken: !!data.access_token, 
+        hasRefreshToken: !!data.refresh_token,
+        hasIdToken: !!data.id_token
+      });
 
-      // Validate that we received proper tokens
-      if (!data.access_token || !data.refresh_token || !data.id_token) {
+      // Validate that we received required tokens (id_token is optional)
+      if (!data.access_token || !data.refresh_token) {
         throw new Error('Invalid token response from server');
       }
 
@@ -98,7 +103,7 @@ export default function LoginPage() {
         return parts.length === 3 && parts.every(part => part.length > 0);
       };
 
-      if (!isValidJWT(data.access_token) || !isValidJWT(data.refresh_token) || !isValidJWT(data.id_token)) {
+      if (!isValidJWT(data.access_token) || !isValidJWT(data.refresh_token)) {
         throw new Error('Received malformed tokens from server');
       }
 
@@ -109,7 +114,9 @@ export default function LoginPage() {
       // Manually set the token in Keycloak instance
       keycloak.token = data.access_token;
       keycloak.refreshToken = data.refresh_token;
-      keycloak.idToken = data.id_token;
+      if (data.id_token) {
+        keycloak.idToken = data.id_token;
+      }
       keycloak.tokenParsed = tokenParsed;
       keycloak.authenticated = true;
 
@@ -117,7 +124,9 @@ export default function LoginPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem('kc_token', data.access_token);
         localStorage.setItem('kc_refreshToken', data.refresh_token);
-        localStorage.setItem('kc_idToken', data.id_token);
+        if (data.id_token) {
+          localStorage.setItem('kc_idToken', data.id_token);
+        }
       }
 
       console.log('Custom login successful, tokens set and persisted');
