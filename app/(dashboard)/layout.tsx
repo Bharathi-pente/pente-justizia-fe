@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/auth.store';
 import { DashboardShell } from '@/components/layout/DashboardShell';
 
 export default function DashboardLayout({
@@ -11,13 +12,27 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated: storeAuthenticated } = useAuthStore();
   const router = useRouter();
 
+  // Check both Keycloak state and auth store
+  const userIsAuthenticated = isAuthenticated || storeAuthenticated;
+
+  console.log('Dashboard Layout - Auth check:', { 
+    isAuthenticated, 
+    storeAuthenticated, 
+    userIsAuthenticated, 
+    isLoading 
+  });
+
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    if (!isLoading && !userIsAuthenticated) {
+      console.log('Not authenticated, redirecting to login');
       router.push('/login');
+    } else if (userIsAuthenticated) {
+      console.log('User is authenticated, showing dashboard');
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [userIsAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -27,7 +42,7 @@ export default function DashboardLayout({
     );
   }
 
-  if (!isAuthenticated) {
+  if (!userIsAuthenticated) {
     return null;
   }
 
