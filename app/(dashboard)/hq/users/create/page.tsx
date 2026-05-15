@@ -181,17 +181,13 @@ export default function CreateHQUserPage() {
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
                 >
-                  <option value="hq_admin">HQ Admin (Full Access)</option>
-                  <option value="hq_compliance">HQ Compliance (Compliance & Audit)</option>
-                  <option value="hq_bdm">HQ BDM (Business Development)</option>
-                  <option value="cell_admin">Cell Admin (Cell Manager)</option>
-                  <option value="cell_solicitor">Cell Solicitor (Legal Professional)</option>
-                  <option value="cell_paralegal">Cell Paralegal (Legal Assistant)</option>
-                  <option value="funder">Funder (Funding Organization)</option>
-                  <option value="insurer">Insurer (Insurance Provider)</option>
+                  <option value="hq_admin">HQ Admin</option>
+                  <option value="cell_admin">Cell Admin</option>
+                  <option value="funder">Funder</option>
+                  <option value="insurer">Insurer</option>
                 </select>
                 <p className="text-xs text-muted-foreground">
-                  Select the appropriate role for the new user. All role types can be created by HQ admins.
+                  Select the appropriate role for the new user.
                 </p>
               </div>
 
