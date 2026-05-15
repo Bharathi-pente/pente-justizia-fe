@@ -1,5 +1,4 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import keycloak from './keycloak';
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
@@ -8,21 +7,16 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor - inject Keycloak token
+// Request interceptor - inject token from localStorage
 axiosInstance.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    if (keycloak.token) {
-      // Refresh token if it's about to expire (within 30 seconds)
-      try {
-        await keycloak.updateToken(30);
-      } catch (error) {
-        console.error('Failed to refresh token:', error);
-        keycloak.logout();
-        return Promise.reject(error);
-      }
-
-      config.headers.Authorization = `Bearer ${keycloak.token}`;
+    // Get token directly from localStorage to avoid timing issues with Keycloak instance
+    const token = localStorage.getItem('kc_token');
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   },
   (error) => {
@@ -35,18 +29,14 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      try {
-        // Try to refresh the token
-        const refreshed = await keycloak.updateToken(30);
-        if (refreshed && error.config) {
-          // Retry the original request with new token
-          error.config.headers.Authorization = `Bearer ${keycloak.token}`;
-          return axiosInstance.request(error.config);
-        }
-      } catch (refreshError) {
-        // Token refresh failed, logout user
-        console.error('Token refresh failed, logging out:', refreshError);
-        keycloak.logout();
+      // Clear invalid tokens
+      localStorage.removeItem('kc_token');
+      localStorage.removeItem('kc_refreshToken');
+      localStorage.removeItem('kc_idToken');
+      
+      // Redirect to login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);

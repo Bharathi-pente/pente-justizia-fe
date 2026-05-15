@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 interface PendingUser {
   id: string;
@@ -32,12 +32,7 @@ export default function PendingUsersPage() {
 
   const fetchPendingUsers = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const token = localStorage.getItem('kc_token');
-      
-      const response = await axios.get(`${apiUrl}/auth/pending-users`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosInstance.get('/auth/pending-users');
       
       setPendingUsers(response.data || []);
     } catch (error) {
@@ -50,14 +45,7 @@ export default function PendingUsersPage() {
   const handleApprove = async (userId: string) => {
     setProcessingId(userId);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const token = localStorage.getItem('kc_token');
-      
-      await axios.put(
-        `${apiUrl}/auth/pending-users/${userId}/approve`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axiosInstance.put(`/auth/pending-users/${userId}/approve`);
       
       // Refresh list
       await fetchPendingUsers();
@@ -74,13 +62,9 @@ export default function PendingUsersPage() {
 
     setProcessingId(userId);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const token = localStorage.getItem('kc_token');
-      
-      await axios.put(
-        `${apiUrl}/auth/pending-users/${userId}/reject`,
-        { reason },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axiosInstance.put(
+        `/auth/pending-users/${userId}/reject`,
+        { reason }
       );
       
       // Refresh list

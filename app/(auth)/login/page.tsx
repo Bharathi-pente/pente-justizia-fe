@@ -82,7 +82,17 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error_description || 'Login failed');
+        console.error('Login failed with status:', response.status, errorData);
+        
+        // Handle specific error cases
+        if (response.status === 401) {
+          if (errorData.error === 'invalid_grant') {
+            throw new Error('Invalid email or password. Please check your credentials and try again.');
+          }
+          throw new Error(errorData.error_description || 'Invalid credentials');
+        }
+        
+        throw new Error(errorData.error_description || 'Login failed. Please try again.');
       }
 
       const data = await response.json();
@@ -177,7 +187,15 @@ export default function LoginPage() {
       
     } catch (err: any) {
       console.error('Login error:', err);
-      setError(err.message || 'Invalid email or password');
+      
+      // Provide helpful error messages
+      let errorMessage = 'An error occurred during login. Please try again.';
+      
+      if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
       setLoading(false);
     }
     // Don't set loading to false on success, let redirect happen
@@ -210,12 +228,21 @@ export default function LoginPage() {
         <CardContent>
           {/* Custom Login Form */}
           <form onSubmit={handleCustomLogin} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-3 text-sm">
+                <p className="font-medium">{error}</p>
+                <p className="mt-1 text-xs text-red-600">
+                  Tip: Use your email address (not username) to log in.
+                </p>
+              </div>
+            )}
+            
             <div className="space-y-2">
-              <Label htmlFor="username">Username or Email</Label>
+              <Label htmlFor="username">Email</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="xavi.hq or xavi@justizia.com"
+                placeholder="your.email@example.com"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
@@ -234,12 +261,6 @@ export default function LoginPage() {
                 disabled={loading}
               />
             </div>
-
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-                {error}
-              </div>
-            )}
 
             <Button 
               type="submit" 

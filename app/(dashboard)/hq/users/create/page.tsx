@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, UserPlus } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 export default function CreateHQUserPage() {
   const router = useRouter();
@@ -45,22 +45,14 @@ export default function CreateHQUserPage() {
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const token = localStorage.getItem('kc_token');
-      
-      await axios.post(
-        `${apiUrl}/auth/register/admin`,
+      await axiosInstance.post(
+        '/auth/register/admin',
         {
           email: formData.email,
           password: formData.password,
           firstName: formData.firstName,
           lastName: formData.lastName,
           role: formData.role,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
 
@@ -71,7 +63,17 @@ export default function CreateHQUserPage() {
         router.push('/hq/users');
       }, 2000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create user. Please try again.');
+      console.error('User creation error:', err);
+      
+      // Handle specific error types
+      if (err.response?.status === 409) {
+        setError('A user with this email already exists. Please use a different email.');
+      } else if (err.response?.status === 401) {
+        setError('You are not authorized to create users. Please login again.');
+      } else {
+        setError(err.response?.data?.message || 'Failed to create user. Please try again.');
+      }
+      
       setLoading(false);
     }
   };
@@ -89,11 +91,20 @@ export default function CreateHQUserPage() {
               </div>
               <CardTitle className="text-2xl">User Created Successfully!</CardTitle>
               <CardDescription>
-                The HQ user has been created and can now log in to the system.
+                The user has been created and can now log in to the system.
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">
+            <CardContent className="text-center space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-4 text-sm">
+                <p className="font-medium text-blue-900 mb-1">Login Credentials</p>
+                <p className="text-blue-700">
+                  Email: <span className="font-mono">{formData.email}</span>
+                </p>
+                <p className="text-blue-700 mt-1">
+                  Password: The password you just set
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">
                 Redirecting back to users page...
               </p>
               <Link href="/hq/users">

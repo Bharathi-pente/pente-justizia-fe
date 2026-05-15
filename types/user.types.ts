@@ -38,6 +38,7 @@ export interface User {
   fundedCellIds: string[];
   createdAt: string;
   updatedAt: string;
+  creatorKeycloakId: string | null;  // keycloakId of admin who created this user
   // Client / Contact Variables
   clientName?: string | null;
   phone?: string | null;

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { UserPlus, Users, UserCheck, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 export default function UsersManagementPage() {
   const [stats, setStats] = useState({ totalUsers: 0, hqUsers: 0, cellUsers: 0, pendingUsers: 0 });
@@ -16,12 +16,7 @@ export default function UsersManagementPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const token = localStorage.getItem('kc_token');
-        
-        const response = await axios.get(`${apiUrl}/auth/stats`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axiosInstance.get('/auth/stats');
         
         setStats(response.data);
       } catch (error) {

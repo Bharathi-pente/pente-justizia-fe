@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Gavel, Loader2, CheckCircle } from 'lucide-react';
-import axios from 'axios';
+import axiosInstance from '@/lib/axios';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -44,9 +44,7 @@ export default function SignupPage() {
     }
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      
-      await axios.post(`${apiUrl}/auth/signup`, {
+      await axiosInstance.post('/auth/signup', {
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
